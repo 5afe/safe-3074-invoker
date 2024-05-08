@@ -6,6 +6,14 @@ control an EOA.
 **:warning: This is a proof-of-concept and should not be used with actual funds!
 :warning:**
 
+## Installation
+
+First, we will need to set up the submodules for the repository.
+
+```
+make install
+```
+
 ## Network
 
 For development, we are using the [Otim](https://docs.otim.xyz/) test network
