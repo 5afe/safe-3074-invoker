@@ -63,8 +63,9 @@
           console.log(safe);
 
           // keccak256(MAGIC || chainId || nonce || invokerAddress || commit),
+          // NOTE: invoker address is padded to 32 bytes
           const signingMessage = ethers.solidityPackedKeccak256(
-            ["uint8", "uint256", "uint256", "address", "bytes32"],
+            ["uint8", "uint256", "uint256", "uint256", "bytes32"],
             [EIP3074_MAGIC, chainId, nonce, safe, SAFE3047_COMMIT],
           );
           console.log(signingMessage);
