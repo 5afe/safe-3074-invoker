@@ -8,10 +8,18 @@ control an EOA.
 
 ## Installation
 
-First, we will need to set up the submodules for the repository.
+We will need to set up the submodules for the repository.
 
 ```
 make install
+```
+
+## Deployment
+
+To deploy, you can use the following command:
+
+```
+make foundry cmd="forge script AuthCallScript --rpc-url otim --private-key YOUR_PRIVATE_KEY --broadcast -vvvv"
 ```
 
 ## Network
