@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Safe EIP-3074 Invoker Authorization</title>
+    <meta charset="utf-8">
+    <style>
+      #account {
+        font-family: monospace;
+      }
+      #safe {
+        font-family: monospace;
+        width: 350px;
+      }
+      #sign {
+        width: 100px;
+      }
+      #signature {
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Safe EIP-3074 Invoker Authorization</h1>
+
+    <div>
+      <span id="account">Connecting...</span>
+
+      <form>
+        <label>Safe:&nbsp;</label><input id="safe" type="text" value="0x0000000000000000000000000000000000000000"></br>
+        <button id="sign" type="button">Sign</button>
+      <form>
+
+      <span id="signature"></span>
+    </div>
+
+    <script type="module">
+      import { ethers } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.12.1/ethers.min.js";
+
+      // for debugging purposes
+      window.ethers = ethers;
+
+      const OTIM_RPC = "https://corsproxy.io/?http%3A%2F%2Fdevnet.otim.xyz"; // "http://devnet.otim.xyz";
+      const EIP3074_MAGIC = 0x04;
+      const SAFE3047_COMMIT = ethers.id("Safe3074Invoker");
+
+      function handleError(f) {
+        return () => f().then(err => console.error(err));
+      }
+
+      handleError(async () => {
+        const otim = new ethers.JsonRpcProvider(OTIM_RPC);
+        const { chainId } = await otim.getNetwork();
+
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+
+        const signerAddress = await signer.getAddress();
+        const nonce = await otim.getTransactionCount(signerAddress);
+        document.querySelector("#account").textContent = `${signerAddress} (Nonce: ${nonce})`;
+
+        document.querySelector("#sign").addEventListener("click", handleError(async () => {
+          const safe = document.querySelector("#safe").value;
+          console.log(safe);
+
+          // keccak256(MAGIC || chainId || nonce || invokerAddress || commit),
+          const signingMessage = ethers.solidityPackedKeccak256(
+            ["uint8", "uint256", "uint256", "address", "bytes32"],
+            [EIP3074_MAGIC, chainId, nonce, safe, SAFE3047_COMMIT],
+          );
+          console.log(signingMessage);
+
+          // abuse MetaMask `eth_sign` implementation
+          const signature = await provider.send('eth_sign', [signerAddress, signingMessage]);
+          console.log(signature);
+
+          const { r, s, yParity } = ethers.Signature.from(signature);
+          document.querySelector("#signature").textContent = ethers.solidityPacked(
+            ["uint8", "uint256", "uint256", "bytes32"],
+            [yParity, r, s, SAFE3047_COMMIT],
+          );
+        }));
+      })();
+    </script>
+  </body>
+</html>
