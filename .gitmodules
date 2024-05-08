@@ -1,0 +1,3 @@
+[submodule "safe-infrastructure"]
+	path = safe-infrastructure
+	url = git@github.com:safe-global/safe-infrastructure.git
