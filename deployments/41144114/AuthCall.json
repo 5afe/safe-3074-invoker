@@ -1,0 +1,24 @@
+{
+  "address": "0x569dA7b38950520df8841a8a2E302b70BF26Ac94",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "transactions",
+          "type": "bytes"
+        }
+      ],
+      "name": "multiSend",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x99287f949a81ef072acb3881132eb266374aee7b77421d81368206a4d6522fe7"
+}
