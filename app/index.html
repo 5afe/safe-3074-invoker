@@ -41,7 +41,7 @@
 
       const OTIM_RPC = "https://corsproxy.io/?http%3A%2F%2Fdevnet.otim.xyz"; // "http://devnet.otim.xyz";
       const EIP3074_MAGIC = 0x04;
-      const SAFE3047_COMMIT = ethers.id("Safe3074Invoker");
+      const SAFE3047_COMMIT = ethers.id("AuthCall");
 
       function handleError(f) {
         return () => f().then(err => console.error(err));
@@ -76,8 +76,8 @@
 
           const { r, s, yParity } = ethers.Signature.from(signature);
           document.querySelector("#signature").textContent = ethers.solidityPacked(
-            ["uint8", "uint256", "uint256", "bytes32"],
-            [yParity, r, s, SAFE3047_COMMIT],
+            ["uint8", "uint256", "uint256"],
+            [yParity, r, s],
           );
         }));
       })();
