@@ -1,3 +1,7 @@
 [submodule "safe-infrastructure"]
 	path = safe-infrastructure
 	url = git@github.com:safe-global/safe-infrastructure.git
+[submodule "safe-deployments"]
+	path = safe-deployments
+	url = git@github.com:akshay-ap/safe-deployments.git
+	branch = 3074
