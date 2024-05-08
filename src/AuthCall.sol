@@ -5,27 +5,16 @@ pragma solidity >=0.7.0 <0.9.0;
  * @title Auth Call - Allows to do AuthCall based transactions.
  */
 contract AuthCall {
-    
     bytes32 public constant COMMIT = keccak256("AuthCall");
 
     /**
      * @dev Using the same name as `multiSend` to keep compatibility with the Safe UI.
      */
     function multiSend(bytes calldata transactions) external payable {
-        address authorizer;
-        bytes calldata signature;
-        bytes calldata onlyTransactions;
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            // The authorizer (EOA) of the transaction
-            authorizer := shr(0x60, mload(add(transactions.offset, 0x01)))
-            // The signature of the transaction
-            signature.length := calldataload(add(transactions.offset, 0x35))
-            signature.offset := add(transactions.offset, 0x55)
-            // We are only sending the rest of the transactions to be executed
-            onlyTransactions.length := sub(transactions.length, add(0x55, signature.length))
-            onlyTransactions.offset := add(transactions.offset, add(0x55, signature.length))
-        }
+        address authorizer = address(bytes20(transactions[0x01:]));
+        uint256 signatureLength = uint256(bytes32(transactions[0x35:]));
+        bytes calldata signature = transactions[0x55:0x55 + signatureLength];
+        bytes calldata onlyTransactions = transactions[0x55 + signatureLength:];
         multiAuthCall(authorizer, signature, onlyTransactions);
     }
 
@@ -79,20 +68,12 @@ contract AuthCall {
                 let success := 0
                 switch operation
                 // This version only allow regular calls
-                case 0 {
-                    success := authcall(gas(), to, value, data, dataLength, 0, 0)
-                }
+                case 0 { success := authcall(gas(), to, value, data, dataLength, 0, 0) }
                 // This version does not allow delegatecalls
-                case 1 {
-                    revert(0, 0)
-                }
+                case 1 { revert(0, 0) }
                 // This version only allows AuthCalls
-                case 2 {
-                    success := authcall(gas(), to, value, data, dataLength, 0, 0)
-                }
-                if eq(success, 0) {
-                    revert(0, 0)
-                }
+                case 2 { success := authcall(gas(), to, value, data, dataLength, 0, 0) }
+                if eq(success, 0) { revert(0, 0) }
                 // Next entry starts at 85 byte + data length
                 i := add(i, add(0x55, dataLength))
             }
