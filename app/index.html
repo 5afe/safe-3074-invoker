@@ -30,6 +30,7 @@
         <button id="sign" type="button">Sign</button>
       <form>
 
+      <br/>
       <span id="signature"></span>
     </div>
 
@@ -56,11 +57,12 @@
 
         const signerAddress = await signer.getAddress();
         const nonce = await otim.getTransactionCount(signerAddress);
-        document.querySelector("#account").textContent = `${signerAddress} (Nonce: ${nonce})`;
+        const balance = ethers.formatEther(await otim.getBalance(signerAddress));
+        document.querySelector("#account").textContent = `${signerAddress} (Nonce: ${nonce}, Balance: ${balance})`;
 
         document.querySelector("#sign").addEventListener("click", handleError(async () => {
           const safe = document.querySelector("#safe").value;
-          console.log(safe);
+          console.log({ safe });
 
           // keccak256(MAGIC || chainId || nonce || invokerAddress || commit),
           // NOTE: invoker address is padded to 32 bytes
@@ -68,11 +70,11 @@
             ["uint8", "uint256", "uint256", "uint256", "bytes32"],
             [EIP3074_MAGIC, chainId, nonce, safe, SAFE3047_COMMIT],
           );
-          console.log(signingMessage);
+          console.log({ signingMessage });
 
           // abuse MetaMask `eth_sign` implementation
           const signature = await provider.send('eth_sign', [signerAddress, signingMessage]);
-          console.log(signature);
+          console.log({ signature });
 
           const { r, s, yParity } = ethers.Signature.from(signature);
           document.querySelector("#signature").textContent = ethers.solidityPacked(
